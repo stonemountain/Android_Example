@@ -3,17 +3,13 @@ package cn.smvp.sdk.demo;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Window;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import cn.smvp.android.sdk.callback.SmvpJsonHttpResponseHandler;
+import cn.smvp.android.sdk.SmvpClient;
 import cn.smvp.android.sdk.component.SmvpVideoView;
 import cn.smvp.android.sdk.util.SmvpConstants;
 import cn.smvp.sdk.demo.util.MyLogger;
@@ -43,7 +39,12 @@ public class PlayVideoActivity extends Activity {
                 finish();
             }
 
-            playM3U8Video(videoId);
+            boolean autoStart = true;
+            SmvpClient smvpClient = mApplication.getVideoService().getSmvpClient();
+            String defaultDefinition = SmvpConstants.DEFINITION_IOS_HD;
+
+            videoView.playVideo(smvpClient, videoId, autoStart, defaultDefinition);
+            videoView.setOnErrorListener(onErrorListener);
         } catch (Exception e) {
             MyLogger.w(LOG_TAG, "Exception:", e);
         }
@@ -51,40 +52,13 @@ public class PlayVideoActivity extends Activity {
 
     }
 
+    private MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
 
-    public void playM3U8Video(String videoId) {
-
-        SmvpJsonHttpResponseHandler jsonHttpResponseHandler = new SmvpJsonHttpResponseHandler() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                MyLogger.w(LOG_TAG, "download the video in M3U8 format failed: ", throwable);
-                if (SmvpConstants.ERROR_NO_AVAILABLE_BITRATE.equals(throwable.getMessage())) {
-                    Toast.makeText(PlayVideoActivity.this, R.string.no_available_video, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-
-            }
-
-            @Override
-            public void onSuccess(JSONObject response) {
-                try {
-                    JSONArray videoArray = response.getJSONArray("entries");
-                    JSONObject jsonObject = (JSONObject) videoArray.get(0);
-                    JSONArray renditions = jsonObject.getJSONArray("renditions");
-                    videoView.setVideoPath(SmvpConstants.RENDITIONS_IOS_HD, renditions);
-                    videoView.requestFocus();
-                    videoView.start();
-                } catch (Exception e) {
-                    MyLogger.w(LOG_TAG, "error occured when download the video in M3U8 format: ", e);
-
-                }
-            }
-        };
-
-        mApplication.getVideoService().playM3U8Video(videoId, jsonHttpResponseHandler);
-//        mApplication.getVideoService().playMP4Video(videoId, jsonHttpResponseHandler);
-    }
-
+            return true;
+        }
+    };
 
     @Override
     protected void onDestroy() {
@@ -103,7 +77,7 @@ public class PlayVideoActivity extends Activity {
                     return;
                 } else {
                     MyLogger.w(LOG_TAG, "orientation=" + getResources().getConfiguration().orientation);
-                    if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == getResources().getConfiguration().orientation) {
+                    if (videoView.isFullScreen()) {
                         videoView.toSmallScreen();
                         MyLogger.w(LOG_TAG, "toFullScreen");
                     } else {
@@ -113,9 +87,9 @@ public class PlayVideoActivity extends Activity {
                 }
             }
         } catch (Exception e) {
-            MyLogger.i(LOG_TAG, "onConfigurationChanged exception");
+            MyLogger.w(LOG_TAG, "onConfigurationChanged exception");
         }
-
-
     }
+
+
 }

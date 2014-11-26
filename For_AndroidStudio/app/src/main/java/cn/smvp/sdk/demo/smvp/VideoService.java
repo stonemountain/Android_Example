@@ -192,7 +192,7 @@ public class VideoService extends Service {
         }
         String videoId = "647026622611877784";
 
-        smvpClient.entries.downloadMP4Video(videoId, SmvpConstants.RENDITIONS_ANDROID_SMOOTH,
+        smvpClient.entries.downloadMP4Video(videoId, SmvpConstants.DEFINITION_IOS_HD,
                 new SmvpDownloadVideoCallback(storeFile, false) {
                     @Override
                     public void onProgressChanged(int progress) {
@@ -264,12 +264,8 @@ public class VideoService extends Service {
 
     }
 
-    public void playMP4Video(String videoId, SmvpJsonHttpResponseHandler smvpJsonHttpResponseHandler) {
-        smvpClient.entries.jsonMP4(videoId, smvpJsonHttpResponseHandler);
-    }
-
-    public void playM3U8Video(String videoId, SmvpJsonHttpResponseHandler smvpJsonHttpResponseHandler) {
-        smvpClient.entries.jsonM3U8(videoId, smvpJsonHttpResponseHandler);
+    public SmvpClient getSmvpClient() {
+        return smvpClient;
     }
 
     public void cancel() {
