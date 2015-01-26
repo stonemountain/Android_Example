@@ -16,9 +16,9 @@ import cn.smvp.sdk.demo.util.MyLogger;
  * Created by shangsong on 14-9-23.
  */
 public class LocalApplication extends Application {
-    private  final  String LOG_TAG=this.getClass().getSimpleName();
+    private VideoService videoService = null;
+    private final String LOG_TAG = this.getClass().getSimpleName();
 
-    private VideoService videoService=null;
 
     @Override
     public void onCreate() {
@@ -30,7 +30,7 @@ public class LocalApplication extends Application {
         super.onLowMemory();
 
         clearImageCache();
-        MyLogger.d(LOG_TAG,"onLowMemory:clear cache");
+        MyLogger.d(LOG_TAG, "onLowMemory:release cache");
     }
 
     @Override
@@ -38,45 +38,47 @@ public class LocalApplication extends Application {
         super.onTerminate();
 
         clearImageCache();
-        MyLogger.d(LOG_TAG,"onTerminate:clear cache");
+        MyLogger.d(LOG_TAG, "onTerminate:release cache");
     }
 
     private void clearImageCache() {
-         ImageDownLoader.getInstance().clear();
+        ImageDownLoader.getInstance().clear();
     }
 
-    public void onActivityCreate(){
-        Intent intent=new Intent(this,VideoService.class);
-        bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+    public void onActivityCreate() {
+        Intent intent = new Intent(this, VideoService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private ServiceConnection serviceConnection=new ServiceConnection() {
+    private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            MyLogger.d(LOG_TAG,"onServiceConnected");
-            videoService=((VideoService.LocalBinder)iBinder).getService();
+            MyLogger.d(LOG_TAG, "onServiceConnected");
+            videoService = ((VideoService.LocalBinder) iBinder).getService();
             videoService.getVideoList();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            MyLogger.d(LOG_TAG,"service disconnected");
+            MyLogger.d(LOG_TAG, "service disconnected");
 
             unbindService(this);
-            videoService=null;
+            videoService = null;
         }
     };
 
-    public VideoService getVideoService(){
-        return  videoService;
+    public VideoService getVideoService() {
+        return videoService;
     }
 
-    public void unBindService(){
-        if(videoService!=null){
-            videoService.cancel();
+    private void unBindService() {
+        if (videoService != null) {
             unbindService(serviceConnection);
         }
 
     }
 
+    public void clear() {
+        unBindService();
+    }
 }

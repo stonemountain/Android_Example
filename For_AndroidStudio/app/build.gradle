@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.3'
+    compile files('libs/gson-2.3.jar')
     compile project(':SmvpSDK')
 }
 

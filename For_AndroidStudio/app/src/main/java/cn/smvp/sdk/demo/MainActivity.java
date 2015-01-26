@@ -8,9 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +46,40 @@ public class MainActivity extends Activity {
         smvpApplication = (LocalApplication) getApplication();
         smvpApplication.onActivityCreate();
 
-        initListView();
-        initUpload();
-        initDownload();
-        initGetVideo();
-        initUpdateVideoInfo();
-        initCancel();
-        initPlay();
+        try {
+            initListView();
+            initUpload();
+            initDownload();
+            initGetVideo();
+            initUpdateVideoInfo();
+            initPlay();
+        } catch (Exception e) {
+            MyLogger.e(LOG_TAG, "exception: ", e);
+        }
+
     }
 
     private void initListView() {
-        final ListView listView = (ListView) findViewById(R.id.listview);
+        final GridView gridView = (GridView) findViewById(R.id.gridview);
         TextView emptyView = (TextView) findViewById(R.id.empty);
-        listView.setEmptyView(emptyView);
+        gridView.setEmptyView(emptyView);
         videoInfoAdapter = new VideoInfoAdapter(this, videoList);
-        listView.setAdapter(videoInfoAdapter);
+        gridView.setAdapter(videoInfoAdapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SmvpVideo smvpVideo = videoList.get(position);
+                Gson gson = new Gson();
+                String videoInfo = gson.toJson(smvpVideo);
+                MyLogger.i(LOG_TAG, "videoInfo=" + videoInfo);
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, PlayVideoActivity.class);
+                intent.putExtra("videoId", smvpVideo.getId());
+                intent.putExtra("autoStart", true);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initUpload() {
@@ -65,7 +87,7 @@ public class MainActivity extends Activity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                smvpApplication.getVideoService().uploadVideo();
+                smvpApplication.getVideoService().upload(MainActivity.this);
             }
         });
     }
@@ -75,10 +97,11 @@ public class MainActivity extends Activity {
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                smvpApplication.getVideoService().downloadVideo();
+                smvpApplication.getVideoService().download(MainActivity.this);
 
             }
         });
+
     }
 
     private void initGetVideo() {
@@ -101,28 +124,19 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void initCancel() {
-        Button downloadBtn = (Button) findViewById(R.id.cancel);
-        downloadBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MyLogger.d(LOG_TAG, "cancel upload or download");
-                smvpApplication.getVideoService().cancel();
-            }
-        });
-    }
-
     private void initPlay() {
         try {
+
+
             Button playBtn = (Button) findViewById(R.id.play_video);
             playBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     MyLogger.d(LOG_TAG, "playBtn onClick");
-//                smvpApplication.getVideoService().playMP4Video();
                     Intent intent = new Intent();
                     intent.setClass(MainActivity.this, PlayVideoActivity.class);
                     intent.putExtra("videoId", "648153037914795602");
+                    intent.putExtra("autoStart", true);
                     startActivity(intent);
                 }
             });
@@ -138,6 +152,7 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if (LocalConstants.ACTION_GET_ALL_VIDEOS_COMPLETED.equals(intent.getAction())) {
                 String jsonObject = intent.getStringExtra("result");
+                MyLogger.i(LOG_TAG, "result=" + jsonObject);
                 videoList.clear();
                 videoList = JsonParser.getInstance().parseJsonStringToObject(jsonObject);
                 if (videoInfoAdapter != null) {
@@ -151,8 +166,8 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        smvpApplication.unBindService();
         unregisterReceiver(infoReceiver);
+        smvpApplication.clear();
     }
 
 }

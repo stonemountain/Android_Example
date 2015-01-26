@@ -4,12 +4,10 @@
     android:layout_height="wrap_content"
     tools:context="cn.smvp.sdk.demo.PlayVideoActivity">
 
-
-    <cn.smvp.android.sdk.component.SmvpVideoView
+    <cn.smvp.android.sdk.view.SmvpVideoView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
-        android:layout_height="500px" />
-
+        android:layout_height="300dp" />
 
     <TextView
         android:layout_width="match_parent"

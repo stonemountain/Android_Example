@@ -52,7 +52,6 @@ public class VideoInfoAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.imageView = (ImageView) convertView.findViewById(R.id.image);
             holder.title = (TextView) convertView.findViewById(R.id.title);
-            holder.description = (TextView) convertView.findViewById(R.id.description);
 
             convertView.setTag(holder);
         } else {
@@ -61,8 +60,6 @@ public class VideoInfoAdapter extends BaseAdapter {
 
         SmvpVideo smvpVideo = videoList.get(position);
         holder.title.setText(smvpVideo.getTitle());
-        holder.description.setText(smvpVideo.getDescription());
-
 
         String imageUrl = smvpVideo.getThumbnail_url();
         imageLoader.downloadImage(imageUrl, holder.imageView);
@@ -78,7 +75,5 @@ public class VideoInfoAdapter extends BaseAdapter {
     private final class ViewHolder {
         ImageView imageView;
         TextView title;
-        TextView description;
-
     }
 }
