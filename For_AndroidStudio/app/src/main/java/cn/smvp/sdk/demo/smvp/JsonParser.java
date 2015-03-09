@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.smvp.android.sdk.util.SmvpVideoData;
 import cn.smvp.sdk.demo.util.MyLogger;
 
 
@@ -32,13 +33,13 @@ public class JsonParser {
         return jsonParser;
     }
 
-    public List<SmvpVideo> parseJsonStringToObject(String result) {
-        List<SmvpVideo> videoList = new ArrayList<SmvpVideo>();
+    public List<SmvpVideoData> parseJsonStringToObject(String result) {
+        List<SmvpVideoData> videoList = new ArrayList<SmvpVideoData>();
         try {
             JSONObject jsonObject = new JSONObject(result);
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             Gson gson = new Gson();
-            Type type = new TypeToken<List<SmvpVideo>>() {
+            Type type = new TypeToken<List<SmvpVideoData>>() {
             }.getType();
             videoList = gson.fromJson(jsonArray.toString(), type);
         } catch (Exception e) {

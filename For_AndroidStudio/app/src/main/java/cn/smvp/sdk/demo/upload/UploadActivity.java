@@ -4,7 +4,6 @@ package cn.smvp.sdk.demo.upload;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -66,20 +65,20 @@ public class UploadActivity extends Activity {
     }
 
     private void setData() {
-        File directory = Environment.getExternalStoragePublicDirectory("UploadTest");
-        File testFile = new File(directory, "smvpTest.mp4");
+//        File directory = Environment.getExternalStoragePublicDirectory("UploadTest");
+        File testFile = new File("/sdcard1/UploadTest/smvpTest.mp4");
         UploadData uploadData1 = new UploadData("test1", "description1", testFile);
         uploadData1.setUploadListener(mUploadListener);
 
         UploadData uploadData2 = new UploadData("test2", "description2", new String[]{"tag1,tag2"},
-                "686018762398263008", true, testFile);
+                "687476371219309847", true, testFile);
         uploadData2.setUploadListener(mUploadListener);
 
         UploadData uploadData3 = new UploadData("test3", "description3", testFile);
         uploadData3.setUploadListener(mUploadListener);
 
         UploadData uploadData4 = new UploadData("test4", "description4", new String[]{"tag3,tag4,tag5"},
-                "686018762398263008", true, testFile);
+                "687476371219309847", true, testFile);
         uploadData4.setUploadListener(mUploadListener);
 
         mUploadManager.upload(uploadData1);

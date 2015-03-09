@@ -93,25 +93,25 @@ public class DownloadActivity extends Activity {
     }
 
     private void setData() {
-        String videoId = "648153037914795602";
+        String videoId = "687484462937695693";
         DownloadData downloadData1 = new DownloadData(videoId,
                 SmvpConstants.DEFINITION_IOS_HD);
         downloadData1.setDownloadListener(mDownloadListener);
         mDownloadManager.download(downloadData1);
 
-        String videoId2 = "648153037914795602";
+        String videoId2 = "687484462937695693";
         DownloadData downloadData2 = new DownloadData(videoId2,
                 SmvpConstants.DEFINITION_IOS_STANDARD);
         downloadData2.setDownloadListener(mDownloadListener);
         mDownloadManager.download(downloadData2);
 
-        String videoId3 = "648153037914795602";
+        String videoId3 = "687484462937695693";
         DownloadData downloadData3 = new DownloadData(videoId3,
                 SmvpConstants.DEFINITION_IOS_SMOOTH);
         downloadData3.setDownloadListener(mDownloadListener);
         mDownloadManager.download(downloadData3);
 
-        String videoId4 = "648151899748462422";
+        String videoId4 = "687480764970853803";
         DownloadData downloadData4 = new DownloadData(videoId4,
                 SmvpConstants.DEFINITION_IOS_HD);
         downloadData4.setDownloadListener(mDownloadListener);

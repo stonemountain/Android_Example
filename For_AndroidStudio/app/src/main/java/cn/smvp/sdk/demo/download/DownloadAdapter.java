@@ -179,7 +179,7 @@ public class DownloadAdapter extends BaseAdapter {
                 case R.id.download_play:
                     Intent intent = new Intent();
                     intent.setClass(mContext, PlayOfflineVideoActivity.class);
-                    intent.putExtra(SmvpConstants.KEY_AUTO_START, false);
+                    intent.putExtra(SmvpConstants.KEY_AUTO_START, true);
                     intent.putExtra(SmvpConstants.KEY_VIDEO_DIRECTORY, downloadTask.getStorageDirectory().getAbsolutePath());
                     mContext.startActivity(intent);
                     break;

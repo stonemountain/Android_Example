@@ -18,8 +18,9 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.smvp.android.sdk.util.SmvpVideoData;
+import cn.smvp.sdk.demo.adapter.VideoInfoAdapter;
 import cn.smvp.sdk.demo.smvp.JsonParser;
-import cn.smvp.sdk.demo.smvp.SmvpVideo;
 import cn.smvp.sdk.demo.util.LocalConstants;
 import cn.smvp.sdk.demo.util.MyLogger;
 
@@ -29,7 +30,7 @@ public class MainActivity extends Activity {
 
     private InfoReceiver infoReceiver;
     private LocalApplication smvpApplication;
-    private List<SmvpVideo> videoList = new ArrayList<SmvpVideo>();
+    private List<SmvpVideoData> videoList = new ArrayList<SmvpVideoData>();
     private final String LOG_TAG = this.getClass().getSimpleName();
 
     @Override
@@ -52,7 +53,6 @@ public class MainActivity extends Activity {
             initDownload();
             initGetVideo();
             initUpdateVideoInfo();
-            initPlay();
         } catch (Exception e) {
             MyLogger.e(LOG_TAG, "exception: ", e);
         }
@@ -69,14 +69,16 @@ public class MainActivity extends Activity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SmvpVideo smvpVideo = videoList.get(position);
+                SmvpVideoData smvpVideoData = videoList.get(position);
+
                 Gson gson = new Gson();
-                String videoInfo = gson.toJson(smvpVideo);
-                MyLogger.i(LOG_TAG, "videoInfo=" + videoInfo);
+                String videoInfo = gson.toJson(smvpVideoData);
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this, PlayVideoActivity.class);
-                intent.putExtra("videoId", smvpVideo.getId());
-                intent.putExtra("autoStart", true);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("data", smvpVideoData);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
@@ -124,35 +126,13 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void initPlay() {
-        try {
-
-
-            Button playBtn = (Button) findViewById(R.id.play_video);
-            playBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MyLogger.d(LOG_TAG, "playBtn onClick");
-                    Intent intent = new Intent();
-                    intent.setClass(MainActivity.this, PlayVideoActivity.class);
-                    intent.putExtra("videoId", "648153037914795602");
-                    intent.putExtra("autoStart", true);
-                    startActivity(intent);
-                }
-            });
-
-        } catch (Exception e) {
-            MyLogger.e(LOG_TAG, "play video exception: ", e);
-        }
-    }
-
-
     private class InfoReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (LocalConstants.ACTION_GET_ALL_VIDEOS_COMPLETED.equals(intent.getAction())) {
                 String jsonObject = intent.getStringExtra("result");
-                MyLogger.i(LOG_TAG, "result=" + jsonObject);
+//                MyLogger.i(LOG_TAG, "result=" + jsonObject);
+
                 videoList.clear();
                 videoList = JsonParser.getInstance().parseJsonStringToObject(jsonObject);
                 if (videoInfoAdapter != null) {

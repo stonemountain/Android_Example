@@ -1,4 +1,4 @@
-package cn.smvp.sdk.demo;
+package cn.smvp.sdk.demo.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import cn.smvp.sdk.demo.smvp.SmvpVideo;
+import cn.smvp.android.sdk.util.SmvpVideoData;
+import cn.smvp.sdk.demo.R;
 import cn.smvp.sdk.demo.util.ImageDownLoader;
 
 /**
@@ -18,11 +19,11 @@ import cn.smvp.sdk.demo.util.ImageDownLoader;
  */
 public class VideoInfoAdapter extends BaseAdapter {
     private Context context;
-    private List<SmvpVideo> videoList = null;
+    private List<SmvpVideoData> videoList = null;
     private LayoutInflater layoutInflater;
     private final ImageDownLoader imageLoader = ImageDownLoader.getInstance();
 
-    public VideoInfoAdapter(Context context, List<SmvpVideo> videoList) {
+    public VideoInfoAdapter(Context context, List<SmvpVideoData> videoList) {
         this.context = context;
         this.videoList = videoList;
         layoutInflater = LayoutInflater.from(context);
@@ -47,7 +48,7 @@ public class VideoInfoAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.listview_item, parent, false);
+            convertView = layoutInflater.inflate(R.layout.gridview_item, parent, false);
 
             holder = new ViewHolder();
             holder.imageView = (ImageView) convertView.findViewById(R.id.image);
@@ -58,16 +59,16 @@ public class VideoInfoAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        SmvpVideo smvpVideo = videoList.get(position);
-        holder.title.setText(smvpVideo.getTitle());
+        SmvpVideoData smvpVideoData = videoList.get(position);
+        holder.title.setText(smvpVideoData.getTitle());
 
-        String imageUrl = smvpVideo.getThumbnail_url();
+        String imageUrl = smvpVideoData.getThumbnail_url();
         imageLoader.downloadImage(imageUrl, holder.imageView);
 
         return convertView;
     }
 
-    public void setData(List<SmvpVideo> videoList) {
+    public void setData(List<SmvpVideoData> videoList) {
         this.videoList = videoList;
         notifyDataSetChanged();
     }
