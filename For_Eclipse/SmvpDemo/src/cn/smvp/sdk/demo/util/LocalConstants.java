@@ -6,6 +6,5 @@ package cn.smvp.sdk.demo.util;
 public interface LocalConstants {
     String ACTION_GET_ALL_VIDEOS = "com.smvp.testapi.get.videos";
     String ACTION_GET_ALL_VIDEOS_COMPLETED = "com.smvp.testapi.get.videos.completed";
-    // 不再提供Token，有需要请联系石山视频技术支持,QQ: 2878649713
-    String SMVP_TOKEN = "";
+    String SMVP_TOKEN = "P6L-OXvNyZjVAutQvdY1b4MNXRZyLlaSwjYBhD0YA3zOIqytW6HNM5WQTUTpbhtH";
 }

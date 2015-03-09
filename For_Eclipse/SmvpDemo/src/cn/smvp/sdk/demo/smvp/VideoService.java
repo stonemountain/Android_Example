@@ -1,4 +1,3 @@
-
 package cn.smvp.sdk.demo.smvp;
 
 import android.app.Service;
@@ -15,18 +14,17 @@ import java.io.File;
 
 import cn.smvp.android.sdk.SmvpClient;
 import cn.smvp.android.sdk.callback.SmvpJsonHttpResponseHandler;
-import cn.smvp.android.sdk.util.SmvpLogger;
 import cn.smvp.sdk.demo.download.DownloadActivity;
 import cn.smvp.sdk.demo.upload.UploadActivity;
 import cn.smvp.sdk.demo.util.LocalConstants;
 import cn.smvp.sdk.demo.util.MyLogger;
 
+
 public class VideoService extends Service {
     private SmvpClient mSmvpClient = null;
     private LocalBinder myBinder = new LocalBinder();
 
-    private final File STORAGE_DIRECTORY = new File(Environment.getExternalStorageDirectory()
-            + "/smvpdemo");
+    private final File STORAGE_DIRECTORY = new File(Environment.getExternalStorageDirectory() + "/smvpdemo");
 
     private final String LOG_TAG = this.getClass().getSimpleName();
 
@@ -41,6 +39,7 @@ public class VideoService extends Service {
     public IBinder onBind(Intent intent) {
         return myBinder;
     }
+
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -67,11 +66,11 @@ public class VideoService extends Service {
         }
     }
 
+
     public void getVideoList() {
-        mSmvpClient.getVideoManager().list(0, 10, null, new SmvpJsonHttpResponseHandler() {
+        mSmvpClient.getVideoManager().list(0, 5, null, new SmvpJsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
-                // SmvpLogger.w(LOG_TAG, "getVideoList onSuccess=" + response);
                 Intent intent = new Intent(LocalConstants.ACTION_GET_ALL_VIDEOS_COMPLETED);
                 intent.putExtra("result", response.toString());
                 sendBroadcast(intent);
@@ -99,6 +98,7 @@ public class VideoService extends Service {
         context.startActivity(intent);
     }
 
+
     public void getVideo() {
         String videoId = "647026622611877784";
         mSmvpClient.getVideoManager().get(videoId, new SmvpJsonHttpResponseHandler() {
@@ -115,10 +115,8 @@ public class VideoService extends Service {
     }
 
     public void updateVideo() {
-        mSmvpClient.getVideoManager().update("647443938814226137", "update video", "test update",
-                new String[] {
-                        "update1", "update2"
-                }, false, new SmvpJsonHttpResponseHandler() {
+        mSmvpClient.getVideoManager().update("647443938814226137", "update video", "test update", new String[]{"update1", "update2"},
+                false, new SmvpJsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
                         Toast.makeText(VideoService.this, "更新视频信息成功", Toast.LENGTH_SHORT).show();
@@ -141,4 +139,5 @@ public class VideoService extends Service {
         return STORAGE_DIRECTORY;
     }
 
-}
+
+ }
