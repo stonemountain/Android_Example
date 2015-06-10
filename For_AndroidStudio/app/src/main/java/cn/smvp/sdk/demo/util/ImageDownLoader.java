@@ -160,9 +160,8 @@ public class ImageDownLoader {
         return null;
     }
 
-
     private Bitmap downloadBitmap(String url) {
-        final AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("SMVP");
+        final AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("ImageLoader");
         final HttpGet getRequest = new HttpGet(url);
         Bitmap bitmap = null;
         try {

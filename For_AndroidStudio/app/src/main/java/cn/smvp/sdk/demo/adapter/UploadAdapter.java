@@ -1,4 +1,4 @@
-package cn.smvp.sdk.demo.upload;
+package cn.smvp.sdk.demo.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,13 +8,12 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
-import cn.smvp.android.sdk.entries.UploadManager;
-import cn.smvp.android.sdk.entries.UploadTask;
-import cn.smvp.android.sdk.util.SmvpConstants;
+import cn.smvp.android.sdk.UploadManager;
+import cn.smvp.android.sdk.impl.UploadTask;
+import cn.smvp.android.sdk.util.SDKConstants;
 import cn.smvp.sdk.demo.R;
 
 /**
@@ -37,7 +36,7 @@ public class UploadAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.data.size();
+        return data == null ? 0 : data.size();
     }
 
     @Override
@@ -59,7 +58,6 @@ public class UploadAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.title = (TextView) convertView.findViewById(R.id.upload_title);
             holder.progressBar = (ProgressBar) convertView.findViewById(R.id.upload_progressbar);
-            holder.btnRetry = (Button) convertView.findViewById(R.id.upload_retry);
             holder.btnCancel = (Button) convertView.findViewById(R.id.upload_cancel);
             holder.progressText = (TextView) convertView.findViewById(R.id.upload_progress);
             holder.status = (TextView) convertView.findViewById(R.id.upload_status);
@@ -67,7 +65,6 @@ public class UploadAdapter extends BaseAdapter {
             holder.progressBar.setMax(PROGRESS_MAX);
 
             holder.onClickListener = new MyOnClickListener();
-            holder.btnRetry.setOnClickListener(holder.onClickListener);
             holder.btnCancel.setOnClickListener(holder.onClickListener);
             convertView.setTag(holder);
         } else {
@@ -76,17 +73,10 @@ public class UploadAdapter extends BaseAdapter {
 
         UploadTask uploadTask = data.get(position);
 
-        int status = uploadTask.getUploadStatus();
-        if (SmvpConstants.STATUS_FAILURE == status)
-            holder.btnRetry.setClickable(true);
-        else {
-            holder.btnRetry.setClickable(false);
-        }
-
         holder.title.setText(uploadTask.getUploadData().getTitle());
         holder.onClickListener.setUploadTask(uploadTask);
         holder.progressBar.setProgress(uploadTask.getProgress());
-        holder.progressText.setText(mContext.getString(R.string.progress, getProgress(uploadTask)) + '%');
+        holder.progressText.setText(mContext.getString(R.string.upload_progress, getProgress(uploadTask)) + '%');
         setStatus(holder, uploadTask.getUploadStatus());
 
         return convertView;
@@ -101,31 +91,31 @@ public class UploadAdapter extends BaseAdapter {
         this.mUploadManager = uploadManager;
     }
 
-    public void showToast(String content) {
-        Toast.makeText(mContext, content, Toast.LENGTH_SHORT).show();
-    }
-
     private void setStatus(ViewHolder holder, int status) {
         String text = null;
         switch (status) {
-            case SmvpConstants.STATUS_WAIT:
+            case SDKConstants.STATUS_PENDING:
                 text = mContext.getString(R.string.upload_status_wait);
                 break;
-            case SmvpConstants.STATUS_RUNNING:
+            case SDKConstants.STATUS_RUNNING:
                 text = mContext.getString(R.string.upload_status_running);
                 break;
-            case SmvpConstants.STATUS_SUCCESS:
+            case SDKConstants.STATUS_SUCCESS:
                 text = mContext.getString(R.string.upload_status_success);
                 break;
-            case SmvpConstants.STATUS_FAILURE:
+            case SDKConstants.STATUS_FAILURE:
                 text = mContext.getString(R.string.upload_status_failure);
+                break;
+
+            case SDKConstants.STATUS_WAIT_NETWORK:
+                text = mContext.getString(R.string.upload_status_wait_network);
                 break;
 
             default:
                 break;
         }
 
-        holder.status.setText(mContext.getString(R.string.status, text));
+        holder.status.setText(mContext.getString(R.string.upload_status, text));
     }
 
     private class MyOnClickListener implements View.OnClickListener {
@@ -135,10 +125,6 @@ public class UploadAdapter extends BaseAdapter {
         public void onClick(View view) {
             int id = view.getId();
             switch (id) {
-                case R.id.upload_retry:
-                    mUploadManager.upload(uploadTask.getUploadData());
-                    break;
-
                 case R.id.upload_cancel:
                     mUploadManager.cancel(uploadTask);
                     break;
@@ -157,7 +143,6 @@ public class UploadAdapter extends BaseAdapter {
     }
 
     private final class ViewHolder {
-        Button btnRetry;
         Button btnCancel;
         TextView status;
         TextView title;

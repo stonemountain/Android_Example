@@ -20,27 +20,29 @@
         android:layout_below="@id/upload_title" />
 
     <Button
-        android:id="@+id/upload_retry"
+        android:id="@+id/upload_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/upload_progressbar"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/upload_progressbar"
         android:layout_margin="5dp"
-        android:text="@string/upload_retry" />
+        android:text="@string/cancel" />
 
     <TextView
         android:id="@+id/upload_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/upload_progressbar"
-        android:layout_toRightOf="@id/upload_retry"
+        android:layout_toRightOf="@id/upload_cancel"
+        android:layout_toEndOf="@id/upload_cancel"
         android:textSize="13sp"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="@string/progress"
+        android:text="@string/upload_progress"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_alignBottom="@id/upload_retry" />
+        android:layout_marginRight="15dp"
+        android:layout_alignBottom="@id/upload_cancel" />
 
     <TextView
         android:id="@+id/upload_status"
@@ -48,19 +50,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/upload_progressbar"
         android:layout_toRightOf="@id/upload_progress"
+        android:layout_toEndOf="@id/upload_progress"
         android:textSize="13sp"
         android:gravity="center"
         android:layout_marginTop="10dp"
-        android:text="@string/status"
+        android:text="@string/upload_status"
         android:layout_alignBottom="@id/upload_progress" />
 
-    <Button
-        android:id="@+id/upload_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/upload_progressbar"
-        android:layout_toRightOf="@id/upload_status"
-        android:layout_margin="5dp"
-        android:text="@string/cancel" />
 
 </RelativeLayout>

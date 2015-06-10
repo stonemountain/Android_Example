@@ -2,42 +2,60 @@ package cn.smvp.sdk.demo;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Formatter;
 
-import cn.smvp.android.sdk.SmvpClient;
-import cn.smvp.android.sdk.callback.SmvpDownloadListener;
-import cn.smvp.android.sdk.entries.DownloadData;
-import cn.smvp.android.sdk.entries.DownloadManager;
-import cn.smvp.android.sdk.util.SmvpConstants;
-import cn.smvp.android.sdk.util.SmvpLogger;
-import cn.smvp.android.sdk.util.SmvpVideoData;
-import cn.smvp.android.sdk.view.SmvpVideoView;
+import cn.smvp.android.sdk.DownloadManager;
+import cn.smvp.android.sdk.VideoManager;
+import cn.smvp.android.sdk.callback.DownloadListener;
+import cn.smvp.android.sdk.callback.ResponseListener;
+import cn.smvp.android.sdk.impl.DownloadData;
+import cn.smvp.android.sdk.impl.SimplePlayerProperty;
+import cn.smvp.android.sdk.impl.TranscodingInformation;
+import cn.smvp.android.sdk.util.SDKConstants;
+import cn.smvp.android.sdk.util.VideoData;
+import cn.smvp.android.sdk.view.VideoView;
 import cn.smvp.sdk.demo.fragment.DetailFragment;
-import cn.smvp.sdk.demo.fragment.TitleFragment;
-import cn.smvp.sdk.demo.smvp.VideoService;
+import cn.smvp.sdk.demo.fragment.EditDetailFragment;
 import cn.smvp.sdk.demo.util.MyLogger;
 
-public class PlayVideoActivity extends Activity implements TitleFragment.TitleFragmentCallback {
-    private SmvpVideoData mVideoData;
+public class PlayVideoActivity extends Activity implements DetailFragment.Callback,
+        EditDetailFragment.Callback {
+    private VideoData mVideoData;
     private VideoService mVideoService;
-    private SmvpVideoView videoView;
+    private VideoView mVideoView;
     private TextView mProgressView;
+    private static TranscodingInformation mInformation;
     private ProgressReceiver mProgressRecevier;
+    private ArrayList<SimplePlayerProperty> mPlayerList;
+
+    private DefinitionDialog mDialog;
+    private DetailFragment mDetailFragment;
+    private EditDetailFragment mEditDetailFragment;
 
     private static final String LOG_TAG = "PlayVideoActivity";
 
@@ -48,50 +66,47 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
 
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setContentView(R.layout.activity_play_video);
 
-             setContentView(R.layout.activity_play_video);
-            mVideoService = ((LocalApplication) this.getApplication()).getVideoService();
             mProgressView = (TextView) findViewById(R.id.display_progress);
-            videoView = (SmvpVideoView) findViewById(R.id.video_view);
+            String text = getString(R.string.current_play_progress, formatTime(0));
+            mProgressView.setText(text);
 
-            Intent intent = getIntent();
-            Bundle bundle = intent.getExtras();
-            mVideoData = bundle.getParcelable("data");
-            String videoId = mVideoData.getId();
-
-            if (videoId == null || TextUtils.isEmpty(videoId)) {
-                MyLogger.w(LOG_TAG, "videoId can't be null or empty");
-                finish();
-            }
-
-            boolean autoStart = intent.getBooleanExtra("autoStart", false);
-            SmvpClient smvpClient = mVideoService.getSmvpClient();
-            String defaultDefinition = SmvpConstants.DEFINITION_IOS_HD;
-            videoView.playVideo(smvpClient, mVideoData, defaultDefinition, autoStart);
-            videoView.setOnErrorListener(onErrorListener);
-
-            initFragment();
-            registerReceiver();
+            mVideoData = getIntent().getExtras().getParcelable("data");
+            LocalApplication application = (LocalApplication) this.getApplication();
+            application.getVideoService(new LocalApplication.ServiceListener() {
+                @Override
+                public void onServiceDisconnected(VideoService service) {
+                    mVideoService = service;
+                    initPlayer();
+                    initFragment();
+                    registerReceiver();
+                }
+            });
         } catch (Exception e) {
             MyLogger.w(LOG_TAG, "Exception:", e);
         }
-
-
     }
 
-    private MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
-        @Override
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            MyLogger.w(LOG_TAG, "MediaPlayer: onFailure,what=" + what + ", extra=" + extra);
-            return true;
-        }
-    };
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (mVideoView != null)
+            mVideoView.onActivityPasue();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onPause();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(mProgressRecevier);
+        if (mProgressRecevier != null)
+            unregisterReceiver(mProgressRecevier);
     }
 
     @Override
@@ -99,19 +114,14 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
         super.onConfigurationChanged(newConfig);
 
         try {
-            MyLogger.w(LOG_TAG, "onConfigurationChanged");
-            if (videoView != null) {
-                if (videoView.rotatedFromBtn()) {
-                    MyLogger.w(LOG_TAG, "videoView.rotatedFromBtn()=" + videoView.rotatedFromBtn());
+            if (mVideoView != null) {
+                if (mVideoView.rotatedFromBtn()) {
                     return;
                 } else {
-                    MyLogger.w(LOG_TAG, "orientation=" + getResources().getConfiguration().orientation);
-                    if (videoView.isFullScreen()) {
-                        videoView.toSmallScreen();
-                        MyLogger.w(LOG_TAG, "toFullScreen");
+                    if (mVideoView.isFullScreen()) {
+                        mVideoView.toMiniScreen();
                     } else {
-                        videoView.toFullScreen();
-                        MyLogger.w(LOG_TAG, "toSmallScreen");
+                        mVideoView.toFullScreen();
                     }
                 }
             }
@@ -121,52 +131,121 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
     }
 
     private void initFragment() {
-        DetailFragment detailFragment = new DetailFragment();
-        Bundle bundle = new Bundle();
+        mDetailFragment = new DetailFragment();
+        Bundle bundle = new Bundle(1);
         bundle.putParcelable("data", mVideoData);
-        detailFragment.setArguments(bundle);
+        mDetailFragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragment_container, detailFragment);
+        transaction.add(R.id.fragment_container, mDetailFragment);
         transaction.commit();
     }
 
 
     @Override
     public void onEditBtnClick() {
-        SmvpLogger.i(LOG_TAG, "onEditBtnClick");
+        try {
+            if (mEditDetailFragment == null) {
+                mEditDetailFragment = new EditDetailFragment();
+                Bundle bundle = new Bundle(1);
+                bundle.putParcelable("data", mVideoData);
+                mEditDetailFragment.setArguments(bundle);
+            } else {
+                mEditDetailFragment.setData(mVideoData);
+            }
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//            transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+            transaction.replace(R.id.fragment_container, mEditDetailFragment, "edit");
+            transaction.addToBackStack(null);
+            transaction.commit();
+        } catch (Exception e) {
+            MyLogger.w(LOG_TAG, "onConfigurationChanged exception", e);
+        }
     }
 
     @Override
     public void onCancelBtnClick() {
-        SmvpLogger.i(LOG_TAG, "onCancelBtnClick");
+        getFragmentManager().popBackStack();
     }
 
     @Override
-    public void onCompleteBtnClick() {
-        SmvpLogger.i(LOG_TAG, "onCompleteBtnClick");
-    }
+    public void onCompleteBtnClick(VideoData videoData) {
+        try {
+            mVideoService.update(mVideoData, new ResponseListener() {
+                @Override
+                public void onSuccess(String response) {
+                    mVideoData = getVideoData(response);
 
-    @Override
-    public void onUploadBtnClick() {
-        SmvpLogger.i(LOG_TAG, "onUploadBtnClick");
+                    if (mDetailFragment == null) {
+                        mDetailFragment = new DetailFragment();
+                    }
+                    mDetailFragment.setData(mVideoData);
+
+                    getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(android.R.animator.fade_in,
+                            android.R.animator.fade_out);
+                    transaction.replace(R.id.fragment_container, mDetailFragment, "detail");
+                    transaction.commit();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    MyLogger.e(LOG_TAG, "onErrorResponse:", throwable);
+                }
+            });
+        } catch (Exception e) {
+            MyLogger.i(LOG_TAG, "exception:", e);
+        }
+
     }
 
     @Override
     public void onDownloadBtnClick() {
-        File storageDir = mVideoService.getStorageDirectory();
-        DownloadManager downloadManager = mVideoService.getSmvpClient().getVideoManager().getDownloaderManager(this, storageDir);
+        if (mDialog != null && mDialog.isAdded()) {
+            mDialog.dismiss();
+            return;
+        }
 
-        SmvpLogger.i(LOG_TAG, "onDownloadBtnClick");
-        String videoId = mVideoData.getId();
-        DownloadData downloadData = new DownloadData(videoId,
-                SmvpConstants.DEFINITION_IOS_HD);
-        downloadData.setDownloadListener(mDownloadListener);
-        downloadManager.download(downloadData);
+        if (!mVideoData.isActivated()) {
+            Toast.makeText(PlayVideoActivity.this, getString(R.string.deactivate_prompt), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mVideoService.jsonM3U8(mVideoData.getId(), new ResponseListener() {
+                    @Override
+                    public void onSuccess(String response) {
+                        try {
+                            mInformation = mVideoView.getTranscodingInformation();
+                            String[] definitions = mInformation.getDefinitionArray(PlayVideoActivity.this);
+
+                            if (definitions.length == 1) {
+                                download(mInformation.getDefinitionEN(PlayVideoActivity.this, definitions[0]));
+                                return;
+                            }
+
+                            if (mDialog == null) {
+                                mDialog = DefinitionDialog.newInstance(getString(R.string.select_definition), definitions);
+                            }
+                            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                            mDialog.show(transaction, "dialog");
+                        } catch (Exception e) {
+                            MyLogger.w(LOG_TAG, "onDownloadBtnClick JSONException", e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                    }
+                }
+        );
+
     }
 
-    SmvpDownloadListener mDownloadListener = new SmvpDownloadListener() {
+    DownloadListener mDownloadListener = new DownloadListener() {
         @Override
         public void onSuccess() {
             showToast("下载成功");
@@ -178,7 +257,7 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
 
         @Override
         public void onStatusChanged(int status) {
-            showToast("状态改变：" + status);
+//            showToast("状态改变：" + status);
         }
 
         @Override
@@ -187,6 +266,16 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
         }
     };
 
+
+    @Override
+    public void onActivatedStatusChanged(boolean status) {
+        if (status) {
+            mVideoService.getVideoManager().activate(mVideoData.getId());
+        } else {
+            mVideoService.getVideoManager().deactivate(mVideoData.getId());
+        }
+    }
+
     public void showToast(String content) {
         Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
     }
@@ -194,7 +283,7 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
     private void registerReceiver() {
         mProgressRecevier = new ProgressReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(SmvpConstants.ACTION_PLAY_PROGRESS_CHANGED);
+        filter.addAction(SDKConstants.ACTION_PLAY_PROGRESS_CHANGED);
         registerReceiver(mProgressRecevier, filter);
     }
 
@@ -203,11 +292,11 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (SmvpConstants.ACTION_PLAY_PROGRESS_CHANGED == action) {
-                String id = intent.getStringExtra("id");
-                String title = intent.getStringExtra("title");
-                float progress = intent.getFloatExtra("progress", 0);
-                String text = "当前播放时间：" + formatTime(progress);
+            if (SDKConstants.ACTION_PLAY_PROGRESS_CHANGED == action) {
+                String id = intent.getStringExtra(SDKConstants.KEY_ID);
+                String title = intent.getStringExtra(SDKConstants.KEY_TITLE);
+                float progress = intent.getFloatExtra(SDKConstants.KEY_PROGRESS, 0);
+                String text = getString(R.string.current_play_progress, formatTime(progress));
                 mProgressView.setText(text);
             }
 
@@ -230,4 +319,118 @@ public class PlayVideoActivity extends Activity implements TitleFragment.TitleFr
             return formatter.format("%02d:%02d", minutes, seconds).toString();
         }
     }
+
+    public static class DefinitionDialog extends DialogFragment {
+        private int index = 0;
+
+        public static DefinitionDialog newInstance(String title, String[] definitions) {
+            DefinitionDialog definitionDialog = new DefinitionDialog();
+            Bundle bundle = new Bundle(2);
+            bundle.putString("title", title);
+            bundle.putStringArray("definitions", definitions);
+            definitionDialog.setArguments(bundle);
+            return definitionDialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String title = getArguments().getString("title");
+            final String[] definitions = getArguments().getStringArray("definitions");
+
+            return new AlertDialog.Builder(getActivity()).setTitle(title)
+                    .setSingleChoiceItems(definitions, 0, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            index = which;
+                        }
+                    }).setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                String definition = mInformation.getDefinitionEN(getActivity(), definitions[index]);
+                                ((PlayVideoActivity) getActivity()).download(definition);
+                                dialog.dismiss();
+                            } catch (Exception e) {
+                                MyLogger.w(LOG_TAG, "fragment_download exception", e);
+                            }
+
+                        }
+                    }).create();
+
+        }
+    }
+
+    private void download(String definition) {
+        try {
+            DownloadManager downloadManager = mVideoService.getDownloadManager();
+
+            String videoId = mVideoData.getId();
+            DownloadData downloadData = new DownloadData(videoId, definition);
+            downloadData.setDownloadListener(mDownloadListener);
+            downloadManager.download(downloadData);
+        } catch (Exception e) {
+            MyLogger.w(LOG_TAG, "fragment_download exception", e);
+        }
+    }
+
+    private void initPlayer() {
+        mVideoService.getAllPlayers(new ResponseListener() {
+            @Override
+            public void onSuccess(String response) {
+                try {
+                    if (mPlayerList != null)
+                        mPlayerList.clear();
+                    else
+                        mPlayerList = new ArrayList<SimplePlayerProperty>();
+
+                    JSONArray jsonArray = new JSONArray(response);
+                    for (int index = 0; index < jsonArray.length(); index++) {
+                        String item = jsonArray.getString(index);
+                        Gson gson = new Gson();
+                        SimplePlayerProperty player = gson.fromJson(item, SimplePlayerProperty.class);
+                        mPlayerList.add(player);
+                    }
+
+                    play();
+                } catch (JSONException e) {
+                    MyLogger.e(LOG_TAG, "JSONException: ", e);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+
+            }
+        });
+    }
+
+    private void play() {
+        String videoId = mVideoData.getId();
+        if (videoId == null || TextUtils.isEmpty(videoId)) {
+            MyLogger.w(LOG_TAG, "videoId can't be null or empty");
+            finish();
+        }
+        VideoManager videoManager = mVideoService.getVideoManager();
+        String defaultDefinition = SDKConstants.DEFINITION_IOS_SMOOTH;
+
+        mVideoView = (VideoView) findViewById(R.id.video_view);
+        mVideoView.setPlayMode(VideoView.PLAY_MODE_MINI);
+        mVideoView.playVideo(videoManager, mVideoData.getId(), mPlayerList.get(0).getId(), defaultDefinition);
+    }
+
+    public VideoData getVideoData(String response) {
+        try {
+            Gson gson = new Gson();
+            Type type = new TypeToken<VideoData>() {
+            }.getType();
+            return gson.fromJson(response, type);
+        } catch (Exception e) {
+            MyLogger.w(LOG_TAG, "parseJsonToObject error:", e);
+        }
+
+        return null;
+    }
+
 }
+

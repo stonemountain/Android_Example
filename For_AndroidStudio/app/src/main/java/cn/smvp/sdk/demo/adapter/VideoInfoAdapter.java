@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import cn.smvp.android.sdk.util.SmvpVideoData;
+import cn.smvp.android.sdk.util.VideoData;
 import cn.smvp.sdk.demo.R;
 import cn.smvp.sdk.demo.util.ImageDownLoader;
 
@@ -19,11 +19,11 @@ import cn.smvp.sdk.demo.util.ImageDownLoader;
  */
 public class VideoInfoAdapter extends BaseAdapter {
     private Context context;
-    private List<SmvpVideoData> videoList = null;
+    private List<VideoData> videoList = null;
     private LayoutInflater layoutInflater;
     private final ImageDownLoader imageLoader = ImageDownLoader.getInstance();
 
-    public VideoInfoAdapter(Context context, List<SmvpVideoData> videoList) {
+    public VideoInfoAdapter(Context context, List<VideoData> videoList) {
         this.context = context;
         this.videoList = videoList;
         layoutInflater = LayoutInflater.from(context);
@@ -59,16 +59,16 @@ public class VideoInfoAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        SmvpVideoData smvpVideoData = videoList.get(position);
-        holder.title.setText(smvpVideoData.getTitle());
+        VideoData videoData = videoList.get(position);
+        holder.title.setText(videoData.getTitle());
 
-        String imageUrl = smvpVideoData.getThumbnail_url();
+        String imageUrl = videoData.getThumbnail_url();
         imageLoader.downloadImage(imageUrl, holder.imageView);
 
         return convertView;
     }
 
-    public void setData(List<SmvpVideoData> videoList) {
+    public void setData(List<VideoData> videoList) {
         this.videoList = videoList;
         notifyDataSetChanged();
     }

@@ -1,26 +1,41 @@
 package cn.smvp.sdk.demo.fragment;
 
-import android.app.ListFragment;
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import cn.smvp.android.sdk.util.SmvpVideoData;
+import cn.smvp.android.sdk.util.VideoData;
 import cn.smvp.sdk.demo.R;
+import cn.smvp.sdk.demo.util.MyLogger;
 
-public class DetailFragment extends ListFragment {
-    private SmvpVideoData mVideoData;
+public class DetailFragment extends Fragment {
+    private VideoData mVideoData;
+    private Callback mCallback;
+    private ImageView mActivatedView;
+    private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+
 
     public DetailFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            MyLogger.i(LOG_TAG, "onAttach");
+            mCallback = (Callback) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement DetailFragmentCallback");
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,36 +49,125 @@ public class DetailFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
+        try {
+            View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+            initHeader(rootView.findViewById(R.id.detail_header));
+            return rootView;
+        } catch (Exception e) {
+            MyLogger.w(LOG_TAG, "onActivityCreated Exception", e);
+        }
 
-        return rootView;
+        return null;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        setData();
+        try {
+            setData();
+        } catch (Exception e) {
+            MyLogger.i(LOG_TAG, "onActivityCreated Exception", e);
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        MyLogger.i(LOG_TAG, "onDetach");
+    }
+
+
+    private void initHeader(View root) {
+        ImageView downloadBtn = (ImageView) root.findViewById(R.id.image_download);
+        downloadBtn.setOnClickListener(mOnClickListener);
+
+        ImageView editBtn = (ImageView) root.findViewById(R.id.image_edit);
+        editBtn.setOnClickListener(mOnClickListener);
+
+        ImageView cancelBtn = (ImageView) root.findViewById(R.id.image_cancel);
+        cancelBtn.setVisibility(View.GONE);
+
+        ImageView completeBtn = (ImageView) root.findViewById(R.id.image_complete);
+        completeBtn.setVisibility(View.GONE);
+    }
+
+
+    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+            switch (id) {
+                case R.id.image_download:
+                    onDownloadBtnClick();
+                    break;
+                case R.id.image_edit:
+                    onEditBtnClick();
+                    break;
+                case R.id.activated:
+                    onActivatedStatusChanged(v);
+                    break;
+                default:
+                    MyLogger.w(LOG_TAG, "OnClickListener Error!");
+                    break;
+
+            }
+        }
+    };
+
+    public void onDownloadBtnClick() {
+        if (mCallback != null) {
+            mCallback.onDownloadBtnClick();
+        }
+    }
+
+    public void onEditBtnClick() {
+        if (mCallback != null) {
+            mCallback.onEditBtnClick();
+        }
+    }
+
+    public void onActivatedStatusChanged(View view) {
+        MyLogger.i(LOG_TAG, "onActivatedStatusChanged onClick");
+        boolean newStatus;
+        if (view.isSelected()) {
+            newStatus = false;
+            view.setSelected(false);
+            mVideoData.setActivated(false);
+        } else {
+            newStatus = true;
+            view.setSelected(true);
+            mVideoData.setActivated(true);
+        }
+
+        if (mCallback != null) {
+            mCallback.onActivatedStatusChanged(newStatus);
+        }
+    }
+
+    public void setData(VideoData data) {
+        mVideoData = data;
     }
 
     private void setData() {
-        ArrayList<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>(5);
-        Map<String, Object> idMap = new HashMap<String, Object>(2);
-        idMap.put("name", "id");
-        idMap.put("value", mVideoData.getId());
-        dataList.add(idMap);
+        TextView idView = (TextView) getActivity().findViewById(R.id.id_value);
+        idView.setText(mVideoData.getId());
 
-        Map<String, Object> titleMap = new HashMap<String, Object>(2);
-        titleMap.put("name", "title");
-        titleMap.put("value", mVideoData.getTitle());
-        dataList.add(titleMap);
+        TextView titleView = (TextView) getActivity().findViewById(R.id.title_value);
+        titleView.setText(mVideoData.getTitle());
 
-        Map<String, Object> descriptionMap = new HashMap<String, Object>(2);
-        descriptionMap.put("name", "description");
-        descriptionMap.put("value", mVideoData.getDescription());
-        dataList.add(descriptionMap);
-
+        TextView descriptionView = (TextView) getActivity().findViewById(R.id.description_value);
+        descriptionView.setText(mVideoData.getDescription());
 
         StringBuilder builder = new StringBuilder();
         if (mVideoData.getTags() != null) {
@@ -75,26 +179,26 @@ public class DetailFragment extends ListFragment {
                 builder.append(tags[index]);
             }
         }
-        Map<String, Object> tagMap = new HashMap<String, Object>(2);
-        tagMap.put("name", "tags");
-        tagMap.put("value", builder.toString());
-        dataList.add(tagMap);
+        TextView tagsView = (TextView) getActivity().findViewById(R.id.tags_value);
+        tagsView.setText(builder);
 
-        Map<String, Object> activatedMap = new HashMap<String, Object>(2);
-        activatedMap.put("name", "activated");
-        activatedMap.put("value", mVideoData.isActivated());
-        dataList.add(activatedMap);
-
-        String[] from = new String[]{
-                "name", "value"
-        };
-
-        int[] to = new int[]{
-                R.id.name, R.id.value
-        };
-
-        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), dataList,
-                R.layout.detail_listview_item, from, to);
-        getListView().setAdapter(simpleAdapter);
+        mActivatedView = (ImageView) getActivity().findViewById(R.id.activated);
+        if (mVideoData.isActivated()) {
+            mActivatedView.setTag(true);
+            mActivatedView.setSelected(true);
+        } else {
+            mActivatedView.setTag(false);
+            mActivatedView.setSelected(false);
+        }
+        mActivatedView.setOnClickListener(mOnClickListener);
     }
+
+    public interface Callback {
+        public void onDownloadBtnClick();
+
+        public void onEditBtnClick();
+
+        public void onActivatedStatusChanged(boolean status);
+    }
+
 }

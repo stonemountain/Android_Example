@@ -1,4 +1,4 @@
-package cn.smvp.sdk.demo.download;
+package cn.smvp.sdk.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +12,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import cn.smvp.android.sdk.callback.SmvpDownloadListener;
-import cn.smvp.android.sdk.entries.DownloadManager;
-import cn.smvp.android.sdk.entries.DownloadTask;
-import cn.smvp.android.sdk.util.SmvpConstants;
-import cn.smvp.android.sdk.view.PlayOfflineVideoActivity;
+import cn.smvp.android.sdk.DownloadManager;
+import cn.smvp.android.sdk.impl.DownloadTask;
+import cn.smvp.android.sdk.util.SDKConstants;
+import cn.smvp.android.sdk.view.PlayVideoActivity;
 import cn.smvp.sdk.demo.R;
 import cn.smvp.sdk.demo.util.MyLogger;
 
@@ -28,10 +27,8 @@ public class DownloadAdapter extends BaseAdapter {
     private List<DownloadTask> data = null;
     private LayoutInflater layoutInflater;
     private DownloadManager mDownloadManager;
-    private SmvpDownloadListener mDownloadListener;
 
     private static final int PROGRESS_MAX = 100;
-    private static final int DELAY_TIME = 1000;
     private final String LOG_TAG = this.getClass().getSimpleName();
 
     public DownloadAdapter(Context context, List<DownloadTask> data) {
@@ -42,7 +39,7 @@ public class DownloadAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.data.size();
+        return data == null ? 0 : this.data.size();
     }
 
     @Override
@@ -62,7 +59,7 @@ public class DownloadAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.download_listview_item, parent, false);
 
             holder = new ViewHolder();
-            holder.videoId = (TextView) convertView.findViewById(R.id.download_id);
+            holder.videoTitle = (TextView) convertView.findViewById(R.id.download_title);
             holder.videoDefinition = (TextView) convertView.findViewById(R.id.download_defenition);
 
             holder.progressBar = (ProgressBar) convertView.findViewById(R.id.download_progressbar);
@@ -86,10 +83,10 @@ public class DownloadAdapter extends BaseAdapter {
         }
 
         DownloadTask downloadTask = data.get(position);
-        holder.videoId.setText(mContext.getString(R.string.video_id,
-                downloadTask.getVideoId()));
+        holder.videoTitle.setText(mContext.getString(R.string.video_title,
+                downloadTask.getTitle()));
         holder.videoDefinition.setText(mContext.getString(R.string.video_defenition,
-                downloadTask.getDefinition()));
+                getDefinition(downloadTask.getDefinition())));
 
         if (downloadTask.isRunning()) {
             holder.btnStart.setTag(true);
@@ -102,10 +99,20 @@ public class DownloadAdapter extends BaseAdapter {
         holder.onClickListener.setDownloadTask(downloadTask);
         holder.progressBar.setTag(downloadTask);
         holder.progressBar.setProgress(downloadTask.getProgress());
-        holder.progressText.setText(mContext.getString(R.string.progress, downloadTask.getProgress()) + "%");
+        holder.progressText.setText(mContext.getString(R.string.upload_progress, downloadTask.getProgress()) + "%");
         setStatus(holder, downloadTask.getDownloadStatus());
 
         return convertView;
+    }
+
+    private String getDefinition(String definition) {
+        if (SDKConstants.DEFINITION_IOS_SMOOTH.equals(definition)) {
+            return mContext.getString(R.string.str_smooth);
+        } else if (SDKConstants.DEFINITION_IOS_STANDARD.equals(definition)) {
+            return mContext.getString(R.string.str_standard);
+        } else {
+            return mContext.getString(R.string.str_hd);
+        }
     }
 
     public void setData(List<DownloadTask> data) {
@@ -114,27 +121,31 @@ public class DownloadAdapter extends BaseAdapter {
     }
 
     private void setStatus(ViewHolder holder, int status) {
-        String text = null;
+        String text;
         switch (status) {
-            case SmvpConstants.STATUS_WAIT:
-                text = "WAIT";
+            case SDKConstants.STATUS_PENDING:
+                text = "PENDING";
                 holder.btnPlay.setClickable(false);
                 break;
-            case SmvpConstants.STATUS_RUNNING:
+            case SDKConstants.STATUS_RUNNING:
                 text = "RUNNING";
                 break;
-            case SmvpConstants.STATUS_STOP:
-                text = "PAUSE";
+            case SDKConstants.STATUS_STOP_BY_USER:
+            case SDKConstants.STATUS_AUTO_STOP:
+                text = "STOP";
                 break;
-            case SmvpConstants.STATUS_SUCCESS:
+            case SDKConstants.STATUS_SUCCESS:
                 text = "SUCCESS";
                 holder.btnPlay.setClickable(true);
                 break;
-            case SmvpConstants.STATUS_CANCELLED:
-                text = "CANCELL";
+            case SDKConstants.STATUS_CANCELLED:
+                text = "CANCEL";
                 break;
-            case SmvpConstants.STATUS_FAILURE:
+            case SDKConstants.STATUS_FAILURE:
                 text = "ERROR";
+                break;
+            case SDKConstants.STATUS_WAIT_NETWORK:
+                text = "WAIT_NETWORK";
                 break;
 
             default:
@@ -143,11 +154,7 @@ public class DownloadAdapter extends BaseAdapter {
                 break;
         }
 
-        holder.status.setText(mContext.getString(R.string.status, text));
-    }
-
-    public void setDownloadListener(SmvpDownloadListener downloadListener) {
-        this.mDownloadListener = downloadListener;
+        holder.status.setText(mContext.getString(R.string.upload_status, text));
     }
 
     private class MyOnClickListener implements View.OnClickListener {
@@ -164,7 +171,6 @@ public class DownloadAdapter extends BaseAdapter {
                         downloadTask = mDownloadManager.download(downloadTask.getDownloadData());
                         ((Button) view).setText(mContext.getString(R.string.pause));
                     } else {
-                        MyLogger.w(LOG_TAG, "stop,");
                         mDownloadManager.stop(downloadTask);
                         ((Button) view).setText(mContext.getString(R.string.start));
                     }
@@ -178,9 +184,9 @@ public class DownloadAdapter extends BaseAdapter {
 
                 case R.id.download_play:
                     Intent intent = new Intent();
-                    intent.setClass(mContext, PlayOfflineVideoActivity.class);
-                    intent.putExtra(SmvpConstants.KEY_AUTO_START, true);
-                    intent.putExtra(SmvpConstants.KEY_VIDEO_DIRECTORY, downloadTask.getStorageDirectory().getAbsolutePath());
+                    intent.setClass(mContext, PlayVideoActivity.class);
+                    intent.putExtra(SDKConstants.KEY_AUTO_START, true);
+                    intent.putExtra(SDKConstants.KEY_VIDEO_DIRECTORY, downloadTask.getStorageDirectory().getAbsolutePath());
                     mContext.startActivity(intent);
                     break;
                 default:
@@ -198,7 +204,7 @@ public class DownloadAdapter extends BaseAdapter {
     }
 
     private final class ViewHolder {
-        TextView videoId;
+        TextView videoTitle;
         TextView videoDefinition;
         Button btnStart;
         Button btnCancel;
@@ -208,6 +214,5 @@ public class DownloadAdapter extends BaseAdapter {
         ProgressBar progressBar;
         MyOnClickListener onClickListener;
     }
-
 
 }

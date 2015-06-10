@@ -3,10 +3,8 @@ package cn.smvp.sdk.demo.util;
 import android.util.Log;
 
 public class MyLogger {
-    private static final String TAG = "smvpsdk";
-    // private boolean DEBUG = android.os.Build.TYPE.startsWith("user") ?
-    // Log.isLoggable(TAG,
-    // Log.DEBUG) : true;
+    private static final String TAG = "sdk";
+    //    public static final boolean DEBUG = BuildConfig.DEBUG;
     public static final boolean DEBUG = true;
 
     public static void v(String className, String log) {
