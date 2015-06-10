@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import cn.smvp.android.sdk.util.SmvpLogger;
+import cn.smvp.android.sdk.util.Logger;
 import cn.smvp.sdk.demo.R;
 
 public class TitleFragment extends Fragment {
@@ -28,7 +28,7 @@ public class TitleFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        SmvpLogger.i(LOG_TAG, "onAttach");
+        Logger.i(LOG_TAG, "onAttach");
         try {
             mCallback = (TitleFragmentCallback) activity;
         } catch (ClassCastException e) {
@@ -40,23 +40,20 @@ public class TitleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SmvpLogger.i(LOG_TAG, "onCreate");
+        Logger.i(LOG_TAG, "onCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        SmvpLogger.i(LOG_TAG, "onCreateView");
-        View rootView = inflater.inflate(R.layout.title_layout, container, false);
+        Logger.i(LOG_TAG, "onCreateView");
+        View rootView = inflater.inflate(R.layout.header_layout, container, false);
         initView(rootView, TYPE_DISPLAY);
 
         return rootView;
     }
 
     private void initView(View root, int type) {
-        ImageView uploadBtn = (ImageView) root.findViewById(R.id.image_upload);
-        uploadBtn.setOnClickListener(mListener);
-
         ImageView downloadBtn = (ImageView) root.findViewById(R.id.image_download);
         downloadBtn.setOnClickListener(mListener);
 
@@ -74,7 +71,7 @@ public class TitleFragment extends Fragment {
     }
 
     private void refreshView(int type) {
-        SmvpLogger.i(LOG_TAG, "refreshView type=" + type);
+        Logger.i(LOG_TAG, "refreshView type=" + type);
         mEditBtn.setVisibility(TYPE_DISPLAY == type ? View.VISIBLE : View.GONE);
         mCancelBtn.setVisibility(TYPE_DISPLAY == type ? View.GONE : View.VISIBLE);
         mCompleteBtn.setVisibility(TYPE_DISPLAY == type ? View.GONE : View.VISIBLE);
@@ -83,7 +80,7 @@ public class TitleFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        SmvpLogger.i(LOG_TAG, "onCreateView");
+        Logger.i(LOG_TAG, "onCreateView");
         mListener = null;
     }
 
@@ -92,9 +89,6 @@ public class TitleFragment extends Fragment {
         public void onClick(View v) {
             int id = v.getId();
             switch (id) {
-                case R.id.image_upload:
-                    onUploadBtnClick();
-                    break;
                 case R.id.image_download:
                     onDownloadBtnClick();
                     break;

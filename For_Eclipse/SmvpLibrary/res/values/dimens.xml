@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- media_controll.xml -->
+    <dimen name="play_content_padding_bottom">6.0dip</dimen>
+    <dimen name="play_content_padding_top">6.0dip</dimen>
+    <dimen name="play_progress_margin_left">8.0dip</dimen>
+    <dimen name="play_progress_margin_right">8.0dip</dimen>
+    <dimen name="play_full_margin_right">10.0dip</dimen>
+    <dimen name="play_pause_padding">0.0dip</dimen>
+
+    <!-- Full Screen Controller-->
+    <dimen name="dimens_text_11">11.0dip</dimen>
+    <dimen name="dimens_text_13">13.0dip</dimen>
+    <dimen name="dimens_text_15">15.0dip</dimen>
+    <dimen name="dimens_view_10">10.0dip</dimen>
+    <dimen name="dimens_view_60">60.0dip</dimen>
+    <dimen name="dimens_view_75">75.0dip</dimen>
+
+    <dimen name="fullscreen_time_width">33.0dip</dimen>
+    <dimen name="fullscreen_footer_padding_left1">10.0dip</dimen>
+    <dimen name="fullscreen_footer_padding_left2">13.0dip</dimen>
+    <dimen name="fullscreen_footer_padding_right">25.0dip</dimen>
+    <dimen name="fullscreen_footer_height">34.0dip</dimen>
+    <dimen name="fullscreen_video_quality_textsize">14.0sp</dimen>
+    <dimen name="fullscreen_btn_shrink_paddingRight">10dp</dimen>
+    <dimen name="fullscreen_btn_quality_marginRight">10dp</dimen>
+    <dimen name="fullscreen_btn_quality_width">50dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+</resources>

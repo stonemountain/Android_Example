@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SmvpSDK</string>
+    <string name="smooth">流畅</string>
+    <string name="standard">标清</string>
+    <string name="HD">高清</string>
+    <string name="default_time">00:00</string>
+    <string name="no_available_video">视频未转码，请转码后重试。</string>
+    <string name="no_available_url">视频地址不能为空</string>
+    <string name="resource_not_available">视频未上线，请上线后重试。</string>
+    <string name="resource_not_found">视频不存在或者已被删除。</string>
+
+    <string name="prompt">提示</string>
+    <string name="error_can_not_play">视频不能播放</string>
+    <string name="OK">OK</string>
+
+    <!--Full Screen Controller-->
+    <string name="play_tip_text1">正在为您切换清晰度…</string>
+    <string name="play_tip_text2">已为您切换至</string>
+
+</resources>

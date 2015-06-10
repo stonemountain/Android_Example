@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Full Screen Controller-->
+    <color name="color_80000000">#80000000</color>
+    <color name="color_ff333333">#ff333333</color>
+    <color name="color_ffffffff">#ffffffff</color>
+    <color name="color_cd000000">#cd000000</color>
+    <color name="color_ff00a0e9">#ff00a0e9</color>
+    <color name="color_ffaeaeae">#ffaeaeae</color>
+    <color name="color_ff000000">#ff000000</color>
+    <color name="color_ff46474a">#ff46474a</color>
+    <color name="color_00000000">#00000000</color>
+
+</resources>
