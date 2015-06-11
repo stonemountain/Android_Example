@@ -10,6 +10,7 @@
     <string name="no_available_url">视频地址不能为空</string>
     <string name="resource_not_available">视频未上线，请上线后重试。</string>
     <string name="resource_not_found">视频不存在或者已被删除。</string>
+    <string name="api_limit_exceeded">超过API的最大调用次数。</string>
 
     <string name="prompt">提示</string>
     <string name="error_can_not_play">视频不能播放</string>

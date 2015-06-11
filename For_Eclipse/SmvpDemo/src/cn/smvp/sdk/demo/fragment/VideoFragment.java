@@ -1,6 +1,7 @@
 
 package cn.smvp.sdk.demo.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -26,9 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.smvp.android.sdk.callback.ResponseListener;
+import cn.smvp.android.sdk.util.SDKConstants;
 import cn.smvp.android.sdk.util.VideoData;
 import cn.smvp.sdk.demo.LocalApplication;
-import cn.smvp.sdk.demo.PlayVideoActivity;
+import cn.smvp.sdk.demo.PlayActivity;
 import cn.smvp.sdk.demo.R;
 import cn.smvp.sdk.demo.VideoService;
 import cn.smvp.sdk.demo.adapter.VideoInfoAdapter;
@@ -77,7 +80,7 @@ public class VideoFragment extends Fragment {
                     return;
 
                 Intent intent = new Intent();
-                intent.setClass(getActivity(), PlayVideoActivity.class);
+                intent.setClass(getActivity(), PlayActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("data", videoData);
                 intent.putExtras(bundle);
@@ -146,10 +149,29 @@ public class VideoFragment extends Fragment {
                     mLoadingView.setVisibility(View.GONE);
                     mRefreshGridView.setVisibility(View.VISIBLE);
                     mRefreshGridView.onRefreshComplete();
+                    onError(throwable);
                 }
             });
         }
     };
+
+    private void onError(Throwable throwable) {
+        try {
+            Context context = getActivity();
+            JSONObject errorMsg = new JSONObject(throwable.getMessage());
+            String error = errorMsg.get("error").toString();
+            if (SDKConstants.ERROR_API_LIMIT_EXCEEDED.equals(error)) {
+                String prompt = context.getString(R.string.api_limit_exceeded);
+                Toast.makeText(context, prompt, Toast.LENGTH_SHORT).show();
+
+            } else if (SDKConstants.ERROR_ATOKEN_WRONG.equals(error)) {
+                String prompt = context.getString(R.string.token_wrong);
+                Toast.makeText(context, prompt, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            MyLogger.w(LOG_TAG, "JSONException ", e);
+        }
+    }
 
     private LocalApplication.ServiceListener loadMoreListener = new LocalApplication.ServiceListener() {
         @Override

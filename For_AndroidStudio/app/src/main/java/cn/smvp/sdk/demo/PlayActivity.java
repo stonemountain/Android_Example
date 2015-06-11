@@ -43,7 +43,7 @@ import cn.smvp.sdk.demo.fragment.DetailFragment;
 import cn.smvp.sdk.demo.fragment.EditDetailFragment;
 import cn.smvp.sdk.demo.util.MyLogger;
 
-public class PlayVideoActivity extends Activity implements DetailFragment.Callback,
+public class PlayActivity extends Activity implements DetailFragment.Callback,
         EditDetailFragment.Callback {
     private VideoData mVideoData;
     private VideoService mVideoService;
@@ -57,7 +57,7 @@ public class PlayVideoActivity extends Activity implements DetailFragment.Callba
     private DetailFragment mDetailFragment;
     private EditDetailFragment mEditDetailFragment;
 
-    private static final String LOG_TAG = "PlayVideoActivity";
+    private static final String LOG_TAG = PlayActivity.class.getSimpleName();
 
 
     @Override
@@ -211,19 +211,19 @@ public class PlayVideoActivity extends Activity implements DetailFragment.Callba
         }
 
         if (!mVideoData.isActivated()) {
-            Toast.makeText(PlayVideoActivity.this, getString(R.string.deactivate_prompt), Toast.LENGTH_SHORT).show();
+            Toast.makeText(PlayActivity.this, getString(R.string.deactivate_prompt), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mVideoService.jsonM3U8(mVideoData.getId(), new ResponseListener() {
+        mVideoService.json(mVideoData.getId(), new ResponseListener() {
                     @Override
                     public void onSuccess(String response) {
                         try {
                             mInformation = mVideoView.getTranscodingInformation();
-                            String[] definitions = mInformation.getDefinitionArray(PlayVideoActivity.this);
+                            String[] definitions = mInformation.getDefinitionArray(PlayActivity.this);
 
                             if (definitions.length == 1) {
-                                download(mInformation.getDefinitionEN(PlayVideoActivity.this, definitions[0]));
+                                download(mInformation.getDefinitionEN(PlayActivity.this, definitions[0]));
                                 return;
                             }
 
@@ -348,7 +348,7 @@ public class PlayVideoActivity extends Activity implements DetailFragment.Callba
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 String definition = mInformation.getDefinitionEN(getActivity(), definitions[index]);
-                                ((PlayVideoActivity) getActivity()).download(definition);
+                                ((PlayActivity) getActivity()).download(definition);
                                 dialog.dismiss();
                             } catch (Exception e) {
                                 MyLogger.w(LOG_TAG, "fragment_download exception", e);
@@ -412,7 +412,7 @@ public class PlayVideoActivity extends Activity implements DetailFragment.Callba
             finish();
         }
         VideoManager videoManager = mVideoService.getVideoManager();
-        String defaultDefinition = SDKConstants.DEFINITION_IOS_SMOOTH;
+        String defaultDefinition = SDKConstants.DEFINITION_ANDROID_SMOOTH;
 
         mVideoView = (VideoView) findViewById(R.id.video_view);
         mVideoView.setPlayMode(VideoView.PLAY_MODE_MINI);

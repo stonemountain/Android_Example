@@ -106,9 +106,9 @@ public class DownloadAdapter extends BaseAdapter {
     }
 
     private String getDefinition(String definition) {
-        if (SDKConstants.DEFINITION_IOS_SMOOTH.equals(definition)) {
+        if (SDKConstants.DEFINITION_ANDROID_SMOOTH.equals(definition)) {
             return mContext.getString(R.string.str_smooth);
-        } else if (SDKConstants.DEFINITION_IOS_STANDARD.equals(definition)) {
+        } else if (SDKConstants.DEFINITION_ANDROID_STANDARD.equals(definition)) {
             return mContext.getString(R.string.str_standard);
         } else {
             return mContext.getString(R.string.str_hd);

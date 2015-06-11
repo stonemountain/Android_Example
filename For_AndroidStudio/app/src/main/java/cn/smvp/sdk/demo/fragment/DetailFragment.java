@@ -29,7 +29,6 @@ public class DetailFragment extends Fragment {
         super.onAttach(activity);
 
         try {
-            MyLogger.i(LOG_TAG, "onAttach");
             mCallback = (Callback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
@@ -79,14 +78,6 @@ public class DetailFragment extends Fragment {
 
 
     }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        MyLogger.i(LOG_TAG, "onDetach");
-    }
-
 
     private void initHeader(View root) {
         ImageView downloadBtn = (ImageView) root.findViewById(R.id.image_download);

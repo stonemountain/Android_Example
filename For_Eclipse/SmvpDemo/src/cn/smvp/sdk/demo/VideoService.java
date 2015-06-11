@@ -15,7 +15,6 @@ import cn.smvp.android.sdk.VideoManager;
 import cn.smvp.android.sdk.callback.ResponseListener;
 import cn.smvp.android.sdk.util.VideoData;
 import cn.smvp.sdk.demo.util.LocalConstants;
-import cn.smvp.sdk.demo.util.MyLogger;
 
 
 public class VideoService extends Service {
@@ -29,26 +28,21 @@ public class VideoService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        MyLogger.i(LOG_TAG, "--------------------onCreate");
         mClient = SmvpClient.getInstance(getApplication(), LocalConstants.TOKEN);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        MyLogger.i(LOG_TAG, "--------------------onBind");
         return myBinder;
     }
 
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
-
-        MyLogger.i(LOG_TAG, "--------------------onRebind");
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        MyLogger.i(LOG_TAG, "--------------------onUnbind");
         return super.onUnbind(intent);
     }
 
@@ -56,7 +50,6 @@ public class VideoService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        MyLogger.i(LOG_TAG, "--------------------onDestroy");
         if (mClient != null) {
             mClient.release();
             mClient = null;
@@ -98,8 +91,8 @@ public class VideoService extends Service {
     }
 
 
-    public void jsonM3U8(String videoId, ResponseListener responseListener) {
-        mClient.getVideoManager().jsonM3U8(videoId, responseListener);
+    public void json(String videoId, ResponseListener responseListener) {
+        mClient.getVideoManager().json(videoId, responseListener);
     }
 
     public void list(int start, int max, String categoryId, ResponseListener responseListener) {

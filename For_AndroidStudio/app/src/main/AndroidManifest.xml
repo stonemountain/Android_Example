@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.smvp.sdk.demo">
+    package="cn.smvp.sdk.demo"
+    android:versionCode="20150611"
+    android:versionName="1.6.11">
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -28,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PlayVideoActivity"
+            android:name=".PlayActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_play_video"
             android:windowSoftInputMode="adjustPan|stateHidden" />
