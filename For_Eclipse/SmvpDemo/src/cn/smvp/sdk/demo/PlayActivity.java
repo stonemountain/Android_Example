@@ -15,7 +15,9 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,12 +55,14 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
     private ProgressReceiver mProgressRecevier;
     private ArrayList<SimplePlayerProperty> mPlayerList;
 
+    private String mVideoId1;
+    private String mVideoId2;
+    private String mVideoId3;
     private DefinitionDialog mDialog;
     private DetailFragment mDetailFragment;
     private EditDetailFragment mEditDetailFragment;
 
     private static final String LOG_TAG = PlayActivity.class.getSimpleName();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +76,9 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
             String text = getString(R.string.current_play_progress, formatTime(0));
             mProgressView.setText(text);
 
-            mVideoData = getIntent().getExtras().getParcelable("data");
+            Intent intent = getIntent();
+            initChangeVideoView(intent);
+            mVideoData = intent.getExtras().getParcelable("data");
             LocalApplication application = (LocalApplication) this.getApplication();
             application.getVideoService(new LocalApplication.ServiceListener() {
                 @Override
@@ -86,14 +92,6 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
         } catch (Exception e) {
             MyLogger.w(LOG_TAG, "Exception:", e);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if (mVideoView != null)
-            mVideoView.onActivityPasue();
     }
 
     @Override
@@ -221,11 +219,6 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
                         try {
                             mInformation = mVideoView.getTranscodingInformation();
                             String[] definitions = mInformation.getDefinitionArray(PlayActivity.this);
-
-                            if (definitions.length == 1) {
-                                download(mInformation.getDefinitionEN(PlayActivity.this, definitions[0]));
-                                return;
-                            }
 
                             if (mDialog == null) {
                                 mDialog = DefinitionDialog.newInstance(getString(R.string.select_definition), definitions);
@@ -415,8 +408,8 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
         String defaultDefinition = SDKConstants.DEFINITION_ANDROID_SMOOTH;
 
         mVideoView = (VideoView) findViewById(R.id.video_view);
-        mVideoView.setPlayMode(VideoView.PLAY_MODE_MINI);
-        mVideoView.playVideo(videoManager, mVideoData.getId(), mPlayerList.get(0).getId(), defaultDefinition);
+        String playId = mPlayerList.get(0).getId();
+        mVideoView.playVideo(videoManager, videoId, playId, defaultDefinition);
     }
 
     public VideoData getVideoData(String response) {
@@ -431,6 +424,48 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
 
         return null;
     }
+
+    public void initChangeVideoView(Intent intent) {
+        Button btn1 = (Button) findViewById(R.id.change1);
+        btn1.setOnClickListener(mOnClickListener);
+        Button btn2 = (Button) findViewById(R.id.change2);
+        btn2.setOnClickListener(mOnClickListener);
+        Button btn3 = (Button) findViewById(R.id.change3);
+        btn3.setOnClickListener(mOnClickListener);
+
+        mVideoId1 = intent.getStringExtra("videoId1");
+        mVideoId2 = intent.getStringExtra("videoId2");
+        mVideoId3 = intent.getStringExtra("videoId3");
+    }
+
+    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String videoId = null;
+            String definition = null;
+            int id = v.getId();
+            switch (id) {
+                case R.id.change1:
+                    videoId = mVideoId1;
+                    definition = SDKConstants.DEFINITION_ANDROID_HD;
+                    break;
+                case R.id.change2:
+                    videoId = mVideoId2;
+                    definition = SDKConstants.DEFINITION_ANDROID_HD;
+                    break;
+                case R.id.change3:
+                    videoId = mVideoId3;
+                    definition = SDKConstants.DEFINITION_ANDROID_HD;
+                    break;
+                default:
+                    break;
+            }
+
+            if (mVideoView != null && videoId != null && definition != null)
+                mVideoView.changeVideo(videoId, definition);
+
+        }
+    };
 
 }
 

@@ -21,6 +21,29 @@
             android:orientation="vertical"
             android:gravity="center">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/change1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/video1" />
+
+                <Button
+                    android:id="@+id/change2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/video2" />
+
+                <Button
+                    android:id="@+id/change3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/video3" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/display_progress"
                 android:layout_width="wrap_content"

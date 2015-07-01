@@ -68,6 +68,10 @@
     <string name="loading">正在加载，请稍候</string>
     <string name="title_activity_directory_browser">选择需要上传的视频</string>
 
+    <!--PlayActivity-->
+    <string name="video1">视频1</string>
+    <string name="video2">视频2</string>
+    <string name="video3">视频3</string>
 
     <string name="no_file_selected">没有选中任何视频文件</string>
     <string name="internal_memory">Internal memory</string>

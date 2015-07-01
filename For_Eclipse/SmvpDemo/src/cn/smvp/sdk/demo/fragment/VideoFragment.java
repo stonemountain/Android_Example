@@ -30,11 +30,14 @@ import java.util.List;
 import cn.smvp.android.sdk.callback.ResponseListener;
 import cn.smvp.android.sdk.util.SDKConstants;
 import cn.smvp.android.sdk.util.VideoData;
+import cn.smvp.android.sdk.view.PlayVideoActivity;
+import cn.smvp.android.sdk.view.VideoView;
 import cn.smvp.sdk.demo.LocalApplication;
 import cn.smvp.sdk.demo.PlayActivity;
 import cn.smvp.sdk.demo.R;
 import cn.smvp.sdk.demo.VideoService;
 import cn.smvp.sdk.demo.adapter.VideoInfoAdapter;
+import cn.smvp.sdk.demo.util.LocalConstants;
 import cn.smvp.sdk.demo.util.MyLogger;
 
 
@@ -80,10 +83,26 @@ public class VideoFragment extends Fragment {
                     return;
 
                 Intent intent = new Intent();
-                intent.setClass(getActivity(), PlayActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("data", videoData);
-                intent.putExtras(bundle);
+                if (position == 0) {
+                    intent.putExtra(SDKConstants.KEY_ID, videoData.getId());
+                    intent.putExtra(SDKConstants.KEY_DEFINITION, SDKConstants.DEFINITION_ANDROID_HD);
+                    intent.putExtra(SDKConstants.KEY_PLAYER_ID, LocalConstants.PLAYER_ID);
+                    intent.putExtra(SDKConstants.KEY_TOKEN, LocalConstants.TOKEN);
+                    intent.putExtra(SDKConstants.KEY_PLAY_MODE, VideoView.PLAY_MODE_ONLY_FULL);
+                    intent.setClass(getActivity(), PlayVideoActivity.class);
+                } else {
+                    intent.setClass(getActivity(), PlayActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("data", videoData);
+                    String videoId1 = videoList.get(0).getId();
+                    String videoId2 = videoList.get(1).getId();
+                    String videoId3 = videoList.get(2).getId();
+                    intent.putExtra("videoId1", videoId1);
+                    intent.putExtra("videoId2", videoId2);
+                    intent.putExtra("videoId3", videoId3);
+                    intent.putExtras(bundle);
+                }
+
                 startActivity(intent);
             }
         });
