@@ -72,7 +72,7 @@
     <string name="video1">视频1</string>
     <string name="video2">视频2</string>
     <string name="video3">视频3</string>
-    <string name="seek">跳到6s</string>
+    <string name="seek">跳到10s</string>
     <string name="play_pause">播放/暂停</string>
     <string name="show_hide_progress_bar">显示/隐藏进度条</string>
 
