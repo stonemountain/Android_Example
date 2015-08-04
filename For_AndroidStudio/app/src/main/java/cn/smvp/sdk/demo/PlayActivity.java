@@ -37,7 +37,7 @@ import cn.smvp.android.sdk.callback.DownloadListener;
 import cn.smvp.android.sdk.callback.ResponseListener;
 import cn.smvp.android.sdk.impl.DownloadData;
 import cn.smvp.android.sdk.impl.SimplePlayerProperty;
-import cn.smvp.android.sdk.impl.TranscodingInformation;
+import cn.smvp.android.sdk.impl.TransCodingInformation;
 import cn.smvp.android.sdk.util.SDKConstants;
 import cn.smvp.android.sdk.util.VideoData;
 import cn.smvp.android.sdk.view.VideoView;
@@ -51,7 +51,7 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
     private VideoService mVideoService;
     private VideoView mVideoView;
     private TextView mProgressView;
-    private static TranscodingInformation mInformation;
+    private static TransCodingInformation mInformation;
     private ProgressReceiver mProgressRecevier;
     private ArrayList<SimplePlayerProperty> mPlayerList;
 
@@ -75,6 +75,7 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
             mProgressView = (TextView) findViewById(R.id.display_progress);
             String text = getString(R.string.current_play_progress, formatTime(0));
             mProgressView.setText(text);
+            initControllView();
 
             Intent intent = getIntent();
             initChangeVideoView(intent);
@@ -94,10 +95,6 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onPause();
-    }
 
     @Override
     protected void onDestroy() {
@@ -409,6 +406,7 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
 
         mVideoView = (VideoView) findViewById(R.id.video_view);
         String playId = mPlayerList.get(0).getId();
+        mVideoView.showProgressBar(true);
         mVideoView.playVideo(videoManager, videoId, playId, defaultDefinition);
     }
 
@@ -438,6 +436,17 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
         mVideoId3 = intent.getStringExtra("videoId3");
     }
 
+    public void initControllView() {
+        Button playBtn = (Button) findViewById(R.id.btn_play);
+        playBtn.setOnClickListener(mOnClickListener);
+        Button seekBtn = (Button) findViewById(R.id.btn_seek);
+        seekBtn.setOnClickListener(mOnClickListener);
+
+        Button btn = (Button) findViewById(R.id.btn_hide_progress_bar);
+        btn.setTag(true);
+        btn.setOnClickListener(mOnClickListener);
+    }
+
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -457,15 +466,45 @@ public class PlayActivity extends Activity implements DetailFragment.Callback,
                     videoId = mVideoId3;
                     definition = SDKConstants.DEFINITION_ANDROID_HD;
                     break;
+                case R.id.btn_play:
+                    mVideoView.startOrPause();
+                    break;
+                case R.id.btn_seek:
+                    mVideoView.seekToPosition(10000);
+                    break;
+                case R.id.btn_hide_progress_bar:
+                    updateProgressBar(v);
                 default:
                     break;
             }
 
-            if (mVideoView != null && videoId != null && definition != null)
+            if (mVideoView != null && videoId != null)
                 mVideoView.changeVideo(videoId, definition);
 
         }
     };
+
+    private void updateProgressBar(View view) {
+        boolean newStatus = !(Boolean) view.getTag();
+        MyLogger.i(LOG_TAG, "updateProgressBar,newStatus=" + newStatus);
+        mVideoView.showProgressBar(newStatus);
+        view.setTag(newStatus);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mVideoView != null)
+            mVideoView.onActivityPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mVideoView != null)
+            mVideoView.onActivityResume();
+
+    }
 
 }
 

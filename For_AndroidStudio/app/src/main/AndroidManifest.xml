@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.smvp.sdk.demo"
-    android:versionCode="20150611"
-    android:versionName="1.6.11">
+    android:versionCode="20150723"
+    android:versionName="2.7.23">
 
     <uses-sdk
         android:minSdkVersion="15"

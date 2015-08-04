@@ -1,37 +1,27 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '19.1.0'
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "cn.smvp.sdk.demo"
         minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 20150611
-        versionName "1.6.11"
+        targetSdkVersion 22
+        versionCode 20150723
+        versionName "2.7.23"
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
 }
-
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':SmvpSDK')
     compile project(':RefreshView')
+    compile project(':SmvpSDK')
     compile project(':ijkmediaplayer')
 }

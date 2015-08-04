@@ -10,7 +10,6 @@ import android.os.IBinder;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.smvp.android.sdk.util.Logger;
 import cn.smvp.sdk.demo.util.ImageDownLoader;
 import cn.smvp.sdk.demo.util.MyLogger;
 
@@ -29,7 +28,7 @@ public class LocalApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Logger.i(LOG_TAG, "onCreate*******************************");
+        MyLogger.i(LOG_TAG, "onCreate*******************************");
         instance = this;
     }
 

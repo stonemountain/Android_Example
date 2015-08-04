@@ -1,1 +1,1 @@
-include ':app', ':SmvpSDK', ':RefreshView', ':ijkmediaplayer'
+include ':app', ':RefreshView', ':SmvpSDK', ':ijkmediaplayer'

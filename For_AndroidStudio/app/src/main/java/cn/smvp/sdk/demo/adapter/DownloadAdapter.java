@@ -186,8 +186,8 @@ public class DownloadAdapter extends BaseAdapter {
                 case R.id.download_play:
                     Intent intent = new Intent();
                     intent.setClass(mContext, PlayVideoActivity.class);
-                    intent.putExtra(SDKConstants.KEY_PLAY_MODE, VideoView.PLAY_MODE_OFFLINE);
                     intent.putExtra(SDKConstants.KEY_AUTO_START, true);
+                    intent.putExtra(SDKConstants.KEY_PLAY_MODE, VideoView.PLAY_MODE_OFFLINE);
                     intent.putExtra(SDKConstants.KEY_VIDEO_DIRECTORY, downloadTask.getStorageDirectory().getAbsolutePath());
                     mContext.startActivity(intent);
                     break;
