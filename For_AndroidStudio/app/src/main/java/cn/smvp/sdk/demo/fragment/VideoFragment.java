@@ -89,6 +89,7 @@ public class VideoFragment extends Fragment {
                     intent.putExtra(SDKConstants.KEY_PLAYER_ID, LocalConstants.PLAYER_ID);
                     intent.putExtra(SDKConstants.KEY_TOKEN, LocalConstants.TOKEN);
                     intent.putExtra(SDKConstants.KEY_PLAY_MODE, VideoView.PLAY_MODE_ONLY_FULL);
+                    intent.putExtra(SDKConstants.KEY_SHOW_PROGRESS_BAR, false);
                     intent.setClass(getActivity(), PlayVideoActivity.class);
                 } else {
                     intent.setClass(getActivity(), PlayActivity.class);

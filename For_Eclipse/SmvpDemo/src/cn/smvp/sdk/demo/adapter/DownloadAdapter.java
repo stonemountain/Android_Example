@@ -189,6 +189,7 @@ public class DownloadAdapter extends BaseAdapter {
                     intent.putExtra(SDKConstants.KEY_AUTO_START, true);
                     intent.putExtra(SDKConstants.KEY_PLAY_MODE, VideoView.PLAY_MODE_OFFLINE);
                     intent.putExtra(SDKConstants.KEY_VIDEO_DIRECTORY, downloadTask.getStorageDirectory().getAbsolutePath());
+                    intent.putExtra(SDKConstants.KEY_SHOW_PROGRESS_BAR, true);
                     mContext.startActivity(intent);
                     break;
                 default:
