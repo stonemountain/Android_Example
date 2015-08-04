@@ -11,6 +11,9 @@
     <string name="resource_not_available">视频未上线，请上线后重试。</string>
     <string name="resource_not_found">视频不存在或者已被删除。</string>
     <string name="api_limit_exceeded">超过API的最大调用次数。</string>
+    <string name="ad_close">关闭广告</string>
+    <string name="ad_text">广告：</string>
+    <string name="second">秒</string>
 
     <string name="prompt">提示</string>
     <string name="error_can_not_play">视频不能播放</string>
@@ -19,5 +22,8 @@
     <!--Full Screen Controller-->
     <string name="play_tip_text1">正在为您切换清晰度…</string>
     <string name="play_tip_text2">已为您切换至</string>
+
+    <!--WebViewActivity-->
+    <string name="title_activity_web_view">详情</string>
 
 </resources>

@@ -15,7 +15,8 @@
     <dimen name="dimens_text_15">15.0dip</dimen>
     <dimen name="dimens_view_10">10.0dip</dimen>
     <dimen name="dimens_view_60">60.0dip</dimen>
-    <dimen name="dimens_view_75">75.0dip</dimen>
+    <dimen name="dimens_view_93">93.0dip</dimen>
+    <dimen name="dimens_view_152">152.0dip</dimen>
 
     <dimen name="fullscreen_time_width">33.0dip</dimen>
     <dimen name="fullscreen_footer_padding_left1">10.0dip</dimen>

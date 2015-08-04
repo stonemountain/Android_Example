@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ad_duration_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/color_80000000"
+    android:gravity="center">
+
+    <TextView
+        android:paddingLeft="5dp"
+        android:textSize="15sp"
+        android:textColor="@color/color_ff00a0e9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ad_text" />
+
+    <TextView
+        android:id="@+id/ad_duration"
+        style="@style/text_15_ffffffff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="2dp" />
+
+    <TextView
+        android:textSize="15sp"
+        android:paddingRight="5dp"
+        android:textColor="@color/color_ff00a0e9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/second" />
+
+</LinearLayout>

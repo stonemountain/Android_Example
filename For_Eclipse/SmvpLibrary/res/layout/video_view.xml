@@ -11,6 +11,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
+    <include
+        android:id="@+id/ad_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        layout="@layout/ad_view"
+        android:layout_gravity="center" />
+
     <cn.smvp.android.sdk.view.FullScreenControlView
         android:id="@+id/control_view"
         android:layout_width="match_parent"
